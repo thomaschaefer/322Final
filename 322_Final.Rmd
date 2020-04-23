@@ -1,0 +1,12 @@
+---
+title: "322 Final Project"
+author: "Thomas Schaefer & Pouya Mohammadi"
+date: "4/23/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Template
