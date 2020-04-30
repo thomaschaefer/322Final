@@ -7,6 +7,104 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(xlsx)
+library(dplyr)
 ```
 
-Template
+## Main Objectives
+
+Determine the answers to the following questions:
+
+1. Which factors seem to be the most important for making helicopters that fly longer?
+
+2. Is there any evidence that the effect of rotor length differs by leg width?
+
+3. What would you recommend as the ideal combination to make the helicopter fly long?
+
+
+## Design
+
+We considered implementing both a half factorial design and a full factorial design for this project. While we knew that we could extract more accurate estimate for the effect of the helicopter design on the flight length by doing a full factorial design, we also realized that a half factorial design would save us time and paper. Therefore, we designed both a half factorial design and a full factorial design, both of which we believed would give us enough information to answer the above objectives. Both of these designs included testing each helicopter variant 4 times and record the design. In our design, a value of 1 for a factor relates to a high assignment and a value of 0 relates to a low assignment for the factor. For the half factorial design, we would only construct helicopters with the following factors:
+
+(rotor length, leg width, paperclip, leg length)
+(1,1,1,1)
+(1,0,1,1)
+(0.1,1,1)
+(0,0,1,1)
+(1,1,0,1)
+(1,1,0,0)
+(1,1,1,0)
+(0,0,0,0)
+
+The full factorial design would include the variants above, in addition to the following variants:
+
+(rotor length, leg width, paperclip, leg length)
+(1,0,0,1)
+(0,1,0,1)
+(0,0,0,1)
+(1,0,1,0)
+(0,1,1,0)
+(0,0,1,0)
+(1,0,0,0)
+(0,1,0,0)
+
+After beginning to construct and test the helicopters, we realized that we had both the time and resources to conduct a full factorial design. Therefore we conducted a full factorial design on the 4 factors.
+
+## Results
+
+```{r load-data}
+our_data <- read.xlsx("HelicopterData.xlsx", sheetIndex = 1)
+
+our_data
+```
+
+Unfortunately, we did not format the data correctly, so we will fix the formatting to help make our analysis easier.
+
+```{r format-data}
+makeBinary <- function(letter){
+  l = as.character(letter)
+  if (letter == "H"){
+    return(1)
+  }
+  else if (letter == "L"){
+    return(0)
+  }
+}
+
+our_data$Rotar = mapply(makeBinary, our_data$Rotar)
+our_data$Paperclip = mapply(makeBinary, our_data$Paperclip)
+our_data$Leg.Width = mapply(makeBinary, our_data$Leg.Width)
+our_data$Leg.Length = mapply(makeBinary, our_data$Leg.Length)
+
+drops <- c("Trial.2", "Trial.3", "Trial.4")
+trial_1 <- our_data[ , !(names(our_data) %in% drops)]
+names(trial_1) <- c("Rotar", "Leg.Width", "Leg.Length", "Paperclip", "y")
+
+drops <- c("Trial.1", "Trial.3", "Trial.4")
+trial_2 <- our_data[ , !(names(our_data) %in% drops)]
+names(trial_2) <- c("Rotar", "Leg.Width", "Leg.Length", "Paperclip", "y")
+
+drops <- c("Trial.1", "Trial.2", "Trial.4")
+trial_3 <- our_data[ , !(names(our_data) %in% drops)]
+names(trial_3) <- c("Rotar", "Leg.Width", "Leg.Length", "Paperclip", "y")
+
+drops <- c("Trial.2", "Trial.3", "Trial.1")
+trial_4 <- our_data[ , !(names(our_data) %in% drops)]
+names(trial_4) <- c("Rotar", "Leg.Width", "Leg.Length", "Paperclip", "y")
+
+df <- rbind(trial_1, trial_2)
+df <- rbind(df, trial_3)
+df <- rbind(df, trial_4)
+df <- df %>% arrange(desc(Rotar), desc(Leg.Width), desc(Leg.Length), desc(Paperclip))
+df
+```
+
+Now that the data is properly formatted, we can begin our analysis.
+
+## Analysis
+
+```{r coefficient estimates}
+model <- lm(y ~ Rotar*Leg.Length*Leg.Width*Paperclip, data = df)
+summary(model)
+```
+
