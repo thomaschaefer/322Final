@@ -50,6 +50,8 @@ The full factorial design would include the variants above, in addition to the f
 
 After beginning to construct and test the helicopters, we realized that we had both the time and resources to conduct a full factorial design. Therefore we conducted a full factorial design on the 4 factors.
 
+## Methods
+
 ## Results
 
 ```{r load-data}
@@ -108,3 +110,53 @@ model <- lm(y ~ Rotar*Leg.Length*Leg.Width*Paperclip, data = df)
 summary(model)
 ```
 
+We would like to provide some interpretation of our model. However, before we do so, we see from our model output that none of the three and four way interaction effects appear to be statistically significant. Although, the three way interaction for the rotor, leg width, and paperclip has a p-value that is near 0.05. Therefore, in order to ease interpretation of the model, we would like to remove them from our modelling but must first gather more evidence that they are not statistically significant. In order to do this, we will conduct a nested F-test on the full factorial model and a model containing only two way interactions to ensure that the three and four way interactions are not statistically significant.
+
+```{r two-way-interaction-model}
+model2 <- lm(y ~ Rotar*Leg.Length + Leg.Width*Paperclip +
+               Rotar*Leg.Width + Rotar*Paperclip + 
+               Leg.Width*Leg.Length + Paperclip*Leg.Length, data = df)
+anova(model2, model)
+```
+
+Unfortunately, a nested F-test provided us with evidence that there is a statistically significant difference between the models estimating three and four way effects and the model that is not estimating them. Therefore, let us attempt the same nested F-test replacing the model of two way interactions with a model for three way interactions.
+
+```{r two-way-interaction-model}
+model3 <- lm(y ~ Rotar*Leg.Length + Leg.Width*Paperclip +
+               Rotar*Leg.Width + Rotar*Paperclip + 
+               Leg.Width*Leg.Length + Paperclip*Leg.Length +
+               Rotar*Leg.Width*Paperclip + Leg.Length*Leg.Width*Paperclip +
+               Rotar*Leg.Length*Paperclip + 
+               Rotar*Leg.Length*Leg.Width, data = df)
+anova(model3, model)
+```
+
+Here, we see from the p-value that there is not statistically significant evidence that a four way interaction effect exists between our factors and that including the four way interaction in our model does not improve our predictive power. Therefore, we can continue our analysis by removing the four way interaction effect from our full factorial model in order to ease the interpretation of our model. Therefore, let us continue our interpretation of the model with the model containing all three way interaction effects. Let us print our model output.
+
+```{r model-print}
+summary(model3)
+```
+
+For all of our model analysis, we will use a significance threshold of 0.1.
+
+We see from our model that a paper airplane with low settings for all four factors, our baseline variant, is expected to fly for 1.919219 seconds. If we change the rotor factor to high, we expect the paper airplane to fly 0.004062 seconds longer than the baseline model on average. However, this interaction is not statistically significant at all. If we maintain the baseline design and change the leg length factor to high, we expect the paper airplane to fly 0.008438 seconds shorter than the baseline model on average. Again however, this interaction is not statistically significant at all. If we maintain the baseline design and change the leg width factor to high, we expect the paper airplane to fly 0.026562 seconds longer than the baseline model on average. Again however, this interaction is not statistically significant at all. The only variant with a single high factor to result in a statistically significant change in flight time compared to the baseline model is when we maintain the baseline design but set the paperclip factor to high. We expect this variant to fly for 0.538438 seconds shorter than the baseline design. 
+
+If we keep the paperclip factor on high and additionally change the leg length factor to high while keeping the other two factors on low, we expect to see another statistically significant difference in the flight time of the helicopter that we expect to be 0.516875 seconds longer than if the paperclip was the only factor set to high. Additionally, we expect the flight time to be on average 0.516875 seconds longer than if the leg length was the only factor set to high. Instead, if we keep the paperclip factor on high and change the leg width factor to high while keeping the other two factors on low, we expect to see another statistically significant difference in the flight time of the helicopter that we expect to be 0.384375 seconds longer than if the paperclip was the only factor set to high. Additionally, we expect the flight time to be on average 0.384375 seconds longer than if the leg length was the only factor set to high. These are the only two way interactions that appear to be statistically significant. 
+
+Meanwhile, we will also provide an interpretation of the two way interaction effects that do not appear to be significant. Namely, the interaction effects between the rotor and leg length, between the rotor and leg width, between the leg length and leg width, and finally between the rotor and paperclip. While not statistically significant, our model predicts that on average if the rotor and leg length are high while the other two factors are low, the flight time of the helicopter will 0.031875 seconds longer than if only the rotor or leg length were high. Additionally, while not statistically significant, our model predicts that on average if the rotor and leg width are high while the other two factors are low, the flight time of the helicopter will 0.206875 seconds longer than if only the rotor or leg width were high. The interaction effect between the leg length and leg width is also not statistically significant according to our model. Despite not being statistically significant, our model predicts that the flight time of the helicopter will be 0.009375 seconds longer than if only the leg length or leg width were high while the other factors were low. Finally, while not statistically significant, our model predicts that on average if the rotor and paperclip are high while the other two factors are low, the flight time of the helicopter will 0.031875 seconds longer than if only the rotor or paperclip were high.
+
+For our three way interactions, it seems as if all of the three way interactions appear to be significant, indicating that there is a significant change in the flight time of the helicopter when at least three of the factors are set to high in a variant. The interaction between rotor, leg width and paperclip has a coefficient of 0.408750, indicating that if all three of these factors are high, we expect the flight time of the helicopter to be 0.408750 seconds longer than if only two of these factors were high while the third one was low. Next, we see that the interaction between rotor, leg length and paperclip has a coefficient of -0.366250, indicating that if all three of these factors are high, we expect the flight time of the helicopter to be 0.366250 seconds shorter than if only two of these factors were high while the third one was low. We then see that the interaction between leg width, leg length and paperclip has a coefficient of -0.468750, indicating that if all three of these factors are high, we expect the flight time of the helicopter to be 0.468750 seconds shorter than if only two of these factors were high while the third one was low. Finally, we see that the interaction between leg width, leg length and paperclip has a coefficient of -0.306250, indicating that if all three of these factors are high, we expect the flight time of the helicopter to be 0.306250 seconds shorter than if only two of these factors were high while the third one was low.
+
+## Limitations
+
+We also have a few limitations that we would like to discuss in our design. The first limitation that we have is that the helicopters were made by different individuals. The fact that two individuals were making different variants of helicopters could introduce some latent variables into the data that our model did not capture. For example, these could include the type of paper, the draft in the house, and other area specific factors. Additionally, there could be some bias introduced when measuring the flight time of the planes. One individual testing could have slower reaction times and therefore be slower to stop the stopwatch when the helicopter touches the ground. With such small numbers, a lack of precision in timing could have profound impacts on the model. Therefore, we would like to make note of these limitations in our design and methodology.
+
+## Conclusion
+
+The main objectives of this analysis were to answer the three questions listed at the beginning of this paper.
+
+1. The factor that seems to be the most important for making helicopters that fly longer appears to be the paperclip. When the paperclip is set to low, meaning that there is no paperclip on the helicopter, the helicopter tends to fly longer. However, when included in other interaction effects involving the width and/or length of the helicopter legs, the paperclip seems to have significant results on the flying time of the helicopter as well. There does not appear to be a distinct pattern for how the paperclip interacts with these other factors. However, it does appear that whenever there is an interaction between the paperclip and either the leg width or the leg length, there is a significant effect on flight time. These effects can be seen above.
+
+2. While it does not appear that the effect of rotor length differs by leg width, the interaction between the rotor length, leg width, and paperclip appears to be significant. The interaction between the leg length, leg width, and the rotor also appears to be significant. These interactions do not give any evidence that the effect of rotor length varies due solely to the leg width, however. Instead, it implies that the effects of the leg length and leg width together vary the effect of the rotor. Additionally, it implies that effects of the rotor length vary dependent on the paperclip and leg width factors togehter. There is not a significant effect indicating that the effect of the rotor length varies due solely to the leg width.
+
+3. From our model, it appears as if the variant where the rotar, paperclip, and leg width are set to high, while the leg length is set to low results in the longest flying helicopter. Our model estimates that this design would on average have a flying of time of `r 1.919219 + 0.004062 + 0.026562 -0.538438 + 0.384375 + 0.206875 + 0.031875 + 0.408750` seconds, which is much higher than any of the other variants that we estimated.
