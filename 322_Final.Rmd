@@ -52,6 +52,8 @@ After beginning to construct and test the helicopters, we realized that we had b
 
 ## Methods
 
+To test the helicopters, we first designed and printed them using graphic design software Inkscape to limit errors. Each helicopter was dropped four times from a height of 2 meters off the ground. The drop time of the helicopters was measure from the point it was dropped to the point of first contact with the ground. 
+
 ## Results
 
 ```{r load-data}
@@ -121,7 +123,7 @@ anova(model2, model)
 
 Unfortunately, a nested F-test provided us with evidence that there is a statistically significant difference between the models estimating three and four way effects and the model that is not estimating them. Therefore, let us attempt the same nested F-test replacing the model of two way interactions with a model for three way interactions.
 
-```{r two-way-interaction-model}
+```{r two-way-interaction-model-2}
 model3 <- lm(y ~ Rotar*Leg.Length + Leg.Width*Paperclip +
                Rotar*Leg.Width + Rotar*Paperclip + 
                Leg.Width*Leg.Length + Paperclip*Leg.Length +
